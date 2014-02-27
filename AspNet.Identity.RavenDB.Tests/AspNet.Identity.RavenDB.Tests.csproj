@@ -92,12 +92,11 @@
     <None Include="packages.config" />
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\RavenDB.AspNet.Identity\AspNet.Identity.RavenDB.csproj">
+    <ProjectReference Include="..\AspNet.Identity.RavenDB\AspNet.Identity.RavenDB.csproj">
       <Project>{c147fa58-04f8-4139-9e6e-e3d72f3e30ec}</Project>
       <Name>AspNet.Identity.RavenDB</Name>
     </ProjectReference>
   </ItemGroup>
-  <ItemGroup />
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <Import Project="$(SolutionDir)\.nuget\NuGet.targets" Condition="Exists('$(SolutionDir)\.nuget\NuGet.targets')" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
