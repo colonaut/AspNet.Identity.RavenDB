@@ -5,13 +5,13 @@ using System.Security.Cryptography;
 using System.Text;
 using Microsoft.AspNet.Identity;
 
-namespace RavenDB.AspNet.Identity
+namespace AspNet.Identity.RavenDB
 {
 	internal static class Util
 	{
 		internal static string ToHex(byte[] bytes)
 		{
-			StringBuilder sb = new StringBuilder(bytes.Length*2);
+			var sb = new StringBuilder(bytes.Length*2);
 			for (int i = 0; i < bytes.Length; i++)
 				sb.Append(bytes[i].ToString("x2"));
 			return sb.ToString();
@@ -24,7 +24,7 @@ namespace RavenDB.AspNet.Identity
 			if (hex.Length%2 != 0)
 				throw new ArgumentException("Hex string must be an even number of characters to convert to bytes.");
 
-			byte[] bytes = new byte[hex.Length/2];
+			var bytes = new byte[hex.Length/2];
 
 			for (int i = 0, b = 0; i < hex.Length; i += 2, b++)
 				bytes[b] = Convert.ToByte(hex.Substring(i, 2), 16);
@@ -41,8 +41,8 @@ namespace RavenDB.AspNet.Identity
 		{
 			using (var sha = new SHA1CryptoServiceProvider())
 			{
-				byte[] clearBytes = Encoding.UTF8.GetBytes(login.LoginProvider + "|" + login.ProviderKey);
-				byte[] hashBytes = sha.ComputeHash(clearBytes);
+				var clearBytes = Encoding.UTF8.GetBytes(login.LoginProvider + "|" + login.ProviderKey);
+				var hashBytes = sha.ComputeHash(clearBytes);
 				return "IdentityUserLogins/" + Util.ToHex(hashBytes);
 			}
 		}

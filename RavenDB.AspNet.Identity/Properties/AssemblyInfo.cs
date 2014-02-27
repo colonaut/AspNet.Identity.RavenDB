@@ -5,12 +5,12 @@ using System.Runtime.InteropServices;
 // General Information about an assembly is controlled through the following 
 // set of attributes. Change these attribute values to modify the information
 // associated with an assembly.
-[assembly: AssemblyTitle("RavenDB.AspNet.Identity")]
+[assembly: AssemblyTitle("AspNet.Identity.RavenDB")]
 [assembly: AssemblyDescription("ASP.NET Identity provider for RavenDB")]
 [assembly: AssemblyConfiguration("")]
-[assembly: AssemblyCompany("ILM Professional Services")]
-[assembly: AssemblyProduct("RavenDB.AspNet.Identity")]
-[assembly: AssemblyCopyright("Copyright © 2013 ILM Professional Services & David Boike")]
+[assembly: AssemblyCompany("")]
+[assembly: AssemblyProduct("AspNet.Identity.RavenDB")]
+[assembly: AssemblyCopyright("")]
 [assembly: AssemblyTrademark("")]
 [assembly: AssemblyCulture("")]
 
@@ -35,4 +35,4 @@ using System.Runtime.InteropServices;
 [assembly: AssemblyVersion("0.9.0")]
 [assembly: AssemblyFileVersion("0.9.0")]
 
-[assembly: InternalsVisibleTo("RavenDB.AspNet.Identity.Tests")]
+[assembly: InternalsVisibleTo("AspNet.Identity.RavenDB.Tests")]

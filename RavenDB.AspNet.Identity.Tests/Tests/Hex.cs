@@ -1,12 +1,7 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using Xunit;
-using Util = RavenDB.AspNet.Identity.Util;
 
-namespace RavenDB.AspNet.Identity.Tests
+namespace AspNet.Identity.RavenDB.Tests
 {
 	public class Hex
 	{

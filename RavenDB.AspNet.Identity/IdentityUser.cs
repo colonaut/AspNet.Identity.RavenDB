@@ -1,11 +1,7 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+﻿using System.Collections.Generic;
 using Microsoft.AspNet.Identity;
 
-namespace RavenDB.AspNet.Identity
+namespace AspNet.Identity.RavenDB
 {
     public class IdentityUser : IUser
     {
@@ -19,29 +15,15 @@ namespace RavenDB.AspNet.Identity
 
 		public IdentityUser()
 		{
-			this.Claims = new List<IdentityUserClaim>();
-			this.Roles = new List<string>();
-			this.Logins = new List<UserLoginInfo>();
+			Claims = new List<IdentityUserClaim>();
+			Roles = new List<string>();
+			Logins = new List<UserLoginInfo>();
 		}
 
 		public IdentityUser(string userName)
 			: this()
 		{
-			this.UserName = userName;
+			UserName = userName;
 		}
-	}
-
-	public sealed class IdentityUserLogin
-	{
-		public string Id { get; set; }
-		public string UserId { get; set; }
-		public string Provider { get; set; }
-		public string ProviderKey { get; set; }
-	}
-
-	public class IdentityUserClaim
-	{
-		public virtual string ClaimType { get; set; }
-		public virtual string ClaimValue { get; set; }
 	}
 }

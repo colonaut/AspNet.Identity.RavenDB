@@ -1,58 +1,59 @@
 ﻿using System;
-using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using System.Security.Claims;
-using System.Security.Cryptography;
-using System.Text;
 using System.Threading.Tasks;
 using Microsoft.AspNet.Identity;
 using Raven.Client;
 
-namespace RavenDB.AspNet.Identity
+namespace AspNet.Identity.RavenDB
 {
-	public class UserStore<TUser> : IUserStore<TUser>, IUserLoginStore<TUser>, IUserClaimStore<TUser>, IUserRoleStore<TUser>,
-		IUserPasswordStore<TUser>, IUserSecurityStampStore<TUser>
+	public class UserStore<TUser> : IUserStore<TUser>,
+        IUserLoginStore<TUser>,
+        IUserClaimStore<TUser>,
+        IUserRoleStore<TUser>,
+		IUserPasswordStore<TUser>,
+        IUserSecurityStampStore<TUser>
 		where TUser : IdentityUser
 	{
 		private bool _disposed;
-		private Func<IDocumentSession> getSessionFunc;
+		private readonly Func<IDocumentSession> _getSessionFunc;
 		private IDocumentSession _session;
 
-		private IDocumentSession session
+		private IDocumentSession Session
 		{
 			get
 			{
 				if (_session == null)
-					_session = getSessionFunc();
+					_session = _getSessionFunc();
 				return _session;
 			}
 		}
 
 		public UserStore(Func<IDocumentSession> getSession)
 		{
-			this.getSessionFunc = getSession;
+			_getSessionFunc = getSession;
 		}
 
 		public UserStore(IDocumentSession session)
 		{
-			this._session = session;
+			_session = session;
 		}
 
 		public Task CreateAsync(TUser user)
 		{
-			this.ThrowIfDisposed();
+			ThrowIfDisposed();
 			if (user == null)
 				throw new ArgumentNullException("user");
 
 			user.Id = UsernameToDocumentId(user.UserName);
-			this.session.Store(user);
+			Session.Store(user);
 			return Task.FromResult(true);
 		}
 
 		private string UsernameToDocumentId(string userName)
 		{
-			var conventions = session.Advanced.DocumentStore.Conventions;
+			var conventions = Session.Advanced.DocumentStore.Conventions;
 			string typeTagName = conventions.GetTypeTagName(typeof (TUser));
 			string tag = conventions.TransformTypeTagNameToDocumentKeyPrefix(typeTagName);
 			return String.Format("{0}{1}{2}", tag, conventions.IdentityPartsSeparator, userName);
@@ -60,17 +61,17 @@ namespace RavenDB.AspNet.Identity
 
 		public Task DeleteAsync(TUser user)
 		{
-			this.ThrowIfDisposed();
+			ThrowIfDisposed();
 			if (user == null)
 				throw new ArgumentNullException("user");
 
-			this.session.Delete(user);
+			Session.Delete(user);
 			return Task.FromResult(true);
 		}
 
 		public Task<TUser> FindByIdAsync(string userId)
 		{
-			var user = this.session.Load<TUser>(userId);
+			var user = Session.Load<TUser>(userId);
 			return Task.FromResult(user);
 		}
 
@@ -82,7 +83,7 @@ namespace RavenDB.AspNet.Identity
 
 		public Task UpdateAsync(TUser user)
 		{
-			this.ThrowIfDisposed();
+			ThrowIfDisposed();
 			if (user == null)
 				throw new ArgumentNullException("user");
 
@@ -91,18 +92,18 @@ namespace RavenDB.AspNet.Identity
 
 		private void ThrowIfDisposed()
 		{
-			if (this._disposed)
-				throw new ObjectDisposedException(this.GetType().Name);
+			if (_disposed)
+				throw new ObjectDisposedException(GetType().Name);
 		}
 
 		public void Dispose()
 		{
-			this._disposed = true;
+			_disposed = true;
 		}
 
 		public Task AddLoginAsync(TUser user, UserLoginInfo login)
 		{
-			this.ThrowIfDisposed();
+			ThrowIfDisposed();
 			if (user == null)
 				throw new ArgumentNullException("user");
 
@@ -110,7 +111,7 @@ namespace RavenDB.AspNet.Identity
 			{
 				user.Logins.Add(login);
 
-				this.session.Store(new IdentityUserLogin
+				Session.Store(new IdentityUserLogin
 				{
 					Id = Util.GetLoginId(login),
 					UserId = user.Id,
@@ -126,20 +127,20 @@ namespace RavenDB.AspNet.Identity
 		{
 			string loginId = Util.GetLoginId(login);
 
-			var loginDoc = session.Include<IdentityUserLogin>(x => x.UserId)
+			var loginDoc = Session.Include<IdentityUserLogin>(x => x.UserId)
 				.Load(loginId);
 
 			TUser user = null;
 
 			if (loginDoc != null)
-				user = this.session.Load<TUser>(loginDoc.UserId);
+				user = Session.Load<TUser>(loginDoc.UserId);
 
 			return Task.FromResult(user);
 		}
 
 		public Task<IList<UserLoginInfo>> GetLoginsAsync(TUser user)
 		{
-			this.ThrowIfDisposed();
+			ThrowIfDisposed();
 			if (user == null)
 				throw new ArgumentNullException("user");
 
@@ -148,14 +149,14 @@ namespace RavenDB.AspNet.Identity
 
 		public Task RemoveLoginAsync(TUser user, UserLoginInfo login)
 		{
-			this.ThrowIfDisposed();
+			ThrowIfDisposed();
 			if (user == null)
 				throw new ArgumentNullException("user");
 
 			string loginId = Util.GetLoginId(login);
-			var loginDoc = this.session.Load<IdentityUserLogin>(loginId);
+			var loginDoc = Session.Load<IdentityUserLogin>(loginId);
 			if (loginDoc != null)
-				this.session.Delete(loginDoc);
+				Session.Delete(loginDoc);
 
 			user.Logins.RemoveAll(x => x.LoginProvider == login.LoginProvider && x.ProviderKey == login.ProviderKey);
 			
@@ -164,7 +165,7 @@ namespace RavenDB.AspNet.Identity
 
 		public Task AddClaimAsync(TUser user, Claim claim)
 		{
-			this.ThrowIfDisposed();
+			ThrowIfDisposed();
 			if (user == null)
 				throw new ArgumentNullException("user");
 
@@ -181,7 +182,7 @@ namespace RavenDB.AspNet.Identity
 
 		public Task<IList<Claim>> GetClaimsAsync(TUser user)
 		{
-			this.ThrowIfDisposed();
+			ThrowIfDisposed();
 			if (user == null)
 				throw new ArgumentNullException("user");
 
@@ -191,7 +192,7 @@ namespace RavenDB.AspNet.Identity
 
 		public Task RemoveClaimAsync(TUser user, Claim claim)
 		{
-			this.ThrowIfDisposed();
+			ThrowIfDisposed();
 			if (user == null)
 				throw new ArgumentNullException("user");
 
@@ -201,7 +202,7 @@ namespace RavenDB.AspNet.Identity
 
 		public Task<string> GetPasswordHashAsync(TUser user)
 		{
-			this.ThrowIfDisposed();
+			ThrowIfDisposed();
 			if (user == null)
 				throw new ArgumentNullException("user");
 
@@ -210,7 +211,7 @@ namespace RavenDB.AspNet.Identity
 
 		public Task<bool> HasPasswordAsync(TUser user)
 		{
-			this.ThrowIfDisposed();
+			ThrowIfDisposed();
 			if (user == null)
 				throw new ArgumentNullException("user");
 
@@ -219,7 +220,7 @@ namespace RavenDB.AspNet.Identity
 
 		public Task SetPasswordHashAsync(TUser user, string passwordHash)
 		{
-			this.ThrowIfDisposed();
+			ThrowIfDisposed();
 			if (user == null)
 				throw new ArgumentNullException("user");
 
@@ -229,7 +230,7 @@ namespace RavenDB.AspNet.Identity
 
 		public Task<string> GetSecurityStampAsync(TUser user)
 		{
-			this.ThrowIfDisposed();
+			ThrowIfDisposed();
 			if (user == null)
 				throw new ArgumentNullException("user");
 			
@@ -238,7 +239,7 @@ namespace RavenDB.AspNet.Identity
 
 		public Task SetSecurityStampAsync(TUser user, string stamp)
 		{
-			this.ThrowIfDisposed();
+			ThrowIfDisposed();
 			if (user == null)
 				throw new ArgumentNullException("user");
 
@@ -248,7 +249,7 @@ namespace RavenDB.AspNet.Identity
 
 		public Task AddToRoleAsync(TUser user, string role)
 		{
-			this.ThrowIfDisposed();
+			ThrowIfDisposed();
 			if (user == null)
 				throw new ArgumentNullException("user");
 
@@ -260,7 +261,7 @@ namespace RavenDB.AspNet.Identity
 
 		public Task<IList<string>> GetRolesAsync(TUser user)
 		{
-			this.ThrowIfDisposed();
+			ThrowIfDisposed();
 			if (user == null)
 				throw new ArgumentNullException("user");
 
@@ -269,7 +270,7 @@ namespace RavenDB.AspNet.Identity
 
 		public Task<bool> IsInRoleAsync(TUser user, string role)
 		{
-			this.ThrowIfDisposed();
+			ThrowIfDisposed();
 			if (user == null)
 				throw new ArgumentNullException("user");
 
@@ -278,7 +279,7 @@ namespace RavenDB.AspNet.Identity
 
 		public Task RemoveFromRoleAsync(TUser user, string role)
 		{
-			this.ThrowIfDisposed();
+			ThrowIfDisposed();
 			if (user == null)
 				throw new ArgumentNullException("user");
 
